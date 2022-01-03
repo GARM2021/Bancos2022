@@ -1,5 +1,6 @@
 *** ActiveX Control Event ***
 *CLOSE all
+
 CLEAR
 *IF 1=2
 ?TIME()
@@ -155,7 +156,7 @@ SELECT *,INT((recargos*pctbonrec/100)*100)/100 as bonrec,;
 * SELECT *,(impuesto+recargos+sancion+gastos) as neto FROM dade2 INTO CURSOR dade2
 SELECT *,(impuesto+recargos+sancion+gastos-bonimp-bonrec-bonsan-bongas-salsub) as neto FROM dade2 INTO CURSOR dade2
 ?tIME()
-SELECT exp,MIN(yearbim) as bimrez,SUM(IIF(LEFT(yearbim,4)<wanioc,impuesto,0)) as rezago,SUM(IIF(LEFT(yearbim,4)=wanioc,impuesto,0)) as impuesto,SUM(bonimp) + SUM(salsub) as bonimp,;
+SELECT exp,MIN(yearbim) as bimrez,SUM(IIF(LEFT(yearbim,4)<wanioc,impuesto,0)) as rezago,SUM(IIF(LEFT(yearbim,4)=wanioc,impuesto,0)) as impuesto,(SUM(bonimp) + SUM(salsub)) as bonimp,;
            SUM(recargos) as recargos,SUM(bonrec) as bonrec,;
            SUM(sancion) as sancion,SUM(bonsan) as bonsan,;
            SUM(gastos) as gastos,SUM(bongas) as bongas,;
@@ -166,7 +167,7 @@ SELECT '19' as entidad,'28' as mun,LEFT(ALLTRIM(exp),8) as exp,'7777' as concept
 		RIGHT("00000000000"+ALLTRIM(str(recargos ,14,2)),14) as recargos,;
 		RIGHT("00000000000"+ALLTRIM(str(sancion ,14,2)),14) as sancion,;
 		RIGHT("00000000000"+ALLTRIM(str(gastos ,14,2)),14) as gastos,;
-		RIGHT("00000000000"+ALLTRIM(str((bonimp+bonrec+bonsan+bongas) ,14,2)),14)  as bonif ;
+		RIGHT("00000000000"+ALLTRIM(str((bonimp+bonrec+bonsan+bongas+salsub) ,14,2)),14)  as bonif ;
 		FROM dade2 INTO CURSOR dade3a
 		
 SELECT * FROM DADE3a ORDER BY EXP,BIMANIO INTO CURSOR DADE3       
@@ -233,7 +234,7 @@ SELECT LEFT(ALLTRIM(a.exp),8) as exp,;
 		LEFT(ALLTRIM("Cobranza       :"+RIGHT("             "+TRANSFORM(wcob, '$,$$$,$$$,$$$.99'),13)),40) as tcobranza,;
 		LEFT(ALLTRIM("Ejecucion      :"+RIGHT("             "+TRANSFORM(wejec, '$,$$$,$$$,$$$.99'),13)),40) as tejecucion,;
 		LEFT(ALLTRIM("Multa          :"+RIGHT("             "+TRANSFORM(wmulta, '$,$$$,$$$,$$$.99'),13)),40) as tmulta,;
-		LEFT(ALLTRIM("Bonificacion(-):"+RIGHT("             "+TRANSFORM(b.bonimp+b.bonrec+b.bongas+b.bonsan, '$,$$$,$$$,$$$.99'),13)),40) as tbonif,;
+		LEFT(ALLTRIM("Bonificacion(-):"+RIGHT("             "+TRANSFORM(b.bonimp+b.bonrec+b.bongas+b.bonsan,+b.salsub, '$,$$$,$$$,$$$.99'),13)),40) as tbonif,;
 		LEFT(ALLTRIM("PAGO DEL IMPUESTO PREDIAL 2019"),40) as ANIOPAGAR, b.neto ;
 		FROM dexped2 a, totxexp b WHERE a.exp=b.exp ORDER BY a.exp INTO CURSOR 'x'
 ?tIME()
