@@ -5,9 +5,8 @@ CLEAR
 ?TIME()
 *207.248.62.188
 *192.10.228.10
-		strconn="Driver=SQL Server;Server=192.10.228.10;Database=gpe2022;UID=sa;PWD=Gu4d4Lup317"
-*		strconn="Driver=SQL Server;Server=207.248.62.188;Database=gpe2014;UID=simgpe;PWD=#tecinf2013"
-		
+		strconn="Driver=SQL Server;Server=192.10.228.10;Database=gpe2022;UID=sa;PWD=x"
+*	
 *		MESSAGEBOX(strconn)
 		PUBLIC co,w,wgpe
 		co=SQLStringConnect(strconn)
@@ -128,7 +127,7 @@ wpctbonsan=dbp0004.pctbonimp
 ?tIME()
 
 SELECT a.exp,a.tpocar,a.yearbim,a.fechaven,a.freq,a.salimp as impuesto,a.bimsem,a.bsyba,;
-		IIF(ISNULL(b.pctbonimp),000.00,b.pctbonimp) as pctbonimp,INT((a.salimp*IIF(ISNULL(b.pctbonimp),000.00,b.pctbonimp)/100)*10)/10 as bonimp,;
+		IIF(ISNULL(b.pctbonimp),000.00,b.pctbonimp) as pctbonimp,(INT((a.salimp*IIF(ISNULL(b.pctbonimp),000.00,b.pctbonimp)/100)*10)/10) + a.salsub as bonimp,;
 		iif(a.fechaven<a.freq,a.pctrec2,a.pctrec) as pctrec,INT((a.salimp*iif(a.fechaven<a.freq,a.pctrec2,a.pctrec)/100)*100)/100 as recargos,;
 		IIF(ISNULL(b.pctbonrec),000.00,b.pctbonrec) as pctbonrec,;
 		a.sancion,a.gastos,;
@@ -154,9 +153,9 @@ SELECT *,INT((recargos*pctbonrec/100)*100)/100 as bonrec,;
 ?tIME()		 
 
 * SELECT *,(impuesto+recargos+sancion+gastos) as neto FROM dade2 INTO CURSOR dade2
-SELECT *,(impuesto+recargos+sancion+gastos-bonimp-bonrec-bonsan-bongas) as neto FROM dade2 INTO CURSOR dade2
+SELECT *,(impuesto+recargos+sancion+gastos-bonimp-bonrec-bonsan-bongas-salsub) as neto FROM dade2 INTO CURSOR dade2
 ?tIME()
-SELECT exp,MIN(yearbim) as bimrez,SUM(IIF(LEFT(yearbim,4)<wanioc,impuesto,0)) as rezago,SUM(IIF(LEFT(yearbim,4)=wanioc,impuesto,0)) as impuesto,SUM(bonimp) as bonimp,;
+SELECT exp,MIN(yearbim) as bimrez,SUM(IIF(LEFT(yearbim,4)<wanioc,impuesto,0)) as rezago,SUM(IIF(LEFT(yearbim,4)=wanioc,impuesto,0)) as impuesto,SUM(bonimp) + SUM(salsub) as bonimp,;
            SUM(recargos) as recargos,SUM(bonrec) as bonrec,;
            SUM(sancion) as sancion,SUM(bonsan) as bonsan,;
            SUM(gastos) as gastos,SUM(bongas) as bongas,;
