@@ -6,7 +6,7 @@ CLEAR
 ?TIME()
 *207.248.62.188
 *192.10.228.10
-		strconn="Driver=SQL Server;Server=192.10.228.10;Database=gpe2022;UID=sa;PWD=x"
+		strconn="Driver=SQL Server;Server=192.10.228.10;Database=gpe2022;UID=sa;PWD=Gu4d4Lup317"
 *	
 *		MESSAGEBOX(strconn)
 		PUBLIC co,w,wgpe
@@ -40,7 +40,7 @@ wmesrec='1'
 **************************
 *se modifica la bonificacion
 **************************
-wfecbon=wanioc+"0102"
+wfecbon=wanioc+"0105"
 ************************* *
 
 wanio=VAL(wanioc)
@@ -48,7 +48,7 @@ waniorezmv=ALLTRIM(STR(wanio-5,4,0))
 wfechaval=dtos(wfvalban)
 wfechacorte=wfecbon
 wfecvalban=left(dtos(wfvalban),4)+"-"+subs(dtos(wfvalban),5,2)+"-"+subs(dtos(wfvalban),7,2)
-wfecvalban2=waniofac+"-"+RIGHT("00"+ALLTRIM(wmesrec),2)+"-02"
+wfecvalban2=waniofac+"-"+RIGHT("00"+ALLTRIM(wmesrec),2)+"-04"
 *wfecvalban2=waniofac+"-"+"08"+"-01"
 *IF 1=2
 SQLEXEC(co,"select * from bondbonpred where estatus='0' order by tpocar,fecini ","dbonpred")
@@ -65,7 +65,7 @@ wpctrec2=mtabrec22002.pctrec_&wmesrec
 
 ?tIME()
 *IF 1=2
-sqlcommand = "select a.exp,a.tpocar,a.yearbim,a.fechaven,(a.salimp-a.salsub) as salimp,b.bimsem "
+sqlcommand = "select a.exp,a.tpocar,a.yearbim,a.fechaven,a.salimp,a.salsub,b.bimsem "
 sqlcommand = sqlcommand + " from preddadeudos a, preddexped b "
 *sqlcommand = sqlcommand + " where (b.marca<='0000' or b.marca>'0011') and a.exp=b.exp  "
 sqlcommand = sqlcommand + " where (b.marca<='0000' or b.marca>'0011') and b.marca<>'0012' and b.marca<>'0113' and b.marca<>'0036' and a.exp=b.exp "
@@ -98,13 +98,13 @@ SELECT a.*,b.pctrec_&wmesrec as pctrec FROM dade2 a LEFT JOIN mtabrec b on a.bsy
 SELECT a.*,b.pctrec_&wmesrec as pctrec2 FROM dade2 a LEFT JOIN mtabrec2 b on a.bsyba=b.bsyb INTO CURSOR dade2
 *brow
 ?tIME()
-SELECT exp,tpocar,yearbim,fechaven,freq,salimp,bimsem,bsyba,;
+SELECT exp,tpocar,yearbim,fechaven,freq,salimp,salsub,bimsem,bsyba,;
 	IIF(isnull(pctrec),IIF(tpocar<'0003',wpctrec,000.00),;
 	IIF(tpocar<'0003',pctrec,000.00)) as pctrec,;
 	IIF(isnull(pctrec2),IIF(tpocar<'0003',wpctrec2,000.00),IIF(tpocar<'0003',pctrec2,000.00)) as pctrec2 FROM dade2 INTO CURSOR dade2
 *brow
 ?tIME()
-SELECT exp,tpocar,yearbim,fechaven,freq,salimp,bimsem,bsyba,pctrec,pctrec2,;
+SELECT exp,tpocar,yearbim,fechaven,freq,salimp,salsub,bimsem,bsyba,pctrec,pctrec2,;
 	IIF(tpocar<='0002' and fechaven<=freq,ROUND(salimp,0),iif(tpocar='0001',ROUND(salimp,0),000000000.00)) as sancion,;
 	IIF(tpocar<='0002' and fechaven<=freq,round(salimp*.10,2),IIF(tpocar='0001',round(salimp*.10,2),000000000.00)) as gastos ;
 	FROM dade2 INTO CURSOR dade2
@@ -127,8 +127,8 @@ wpctbonsan=dbp0004.pctbonimp
 
 ?tIME()
 
-SELECT a.exp,a.tpocar,a.yearbim,a.fechaven,a.freq,a.salimp as impuesto,a.bimsem,a.bsyba,;
-		IIF(ISNULL(b.pctbonimp),000.00,b.pctbonimp) as pctbonimp,(INT((a.salimp*IIF(ISNULL(b.pctbonimp),000.00,b.pctbonimp)/100)*10)/10) + a.salsub as bonimp,;
+SELECT a.exp,a.tpocar,a.yearbim,a.fechaven,a.freq,a.salimp as impuesto,a.bimsem,a.bsyba,a.salsub,;
+		IIF(ISNULL(b.pctbonimp),000.00,b.pctbonimp) as pctbonimp,(((a.salimp)*IIF(ISNULL(b.pctbonimp),000.00,b.pctbonimp)/100)*10 /10) + a.salsub as bonimp,;
 		iif(a.fechaven<a.freq,a.pctrec2,a.pctrec) as pctrec,INT((a.salimp*iif(a.fechaven<a.freq,a.pctrec2,a.pctrec)/100)*100)/100 as recargos,;
 		IIF(ISNULL(b.pctbonrec),000.00,b.pctbonrec) as pctbonrec,;
 		a.sancion,a.gastos,;
@@ -154,20 +154,20 @@ SELECT *,INT((recargos*pctbonrec/100)*100)/100 as bonrec,;
 ?tIME()		 
 
 * SELECT *,(impuesto+recargos+sancion+gastos) as neto FROM dade2 INTO CURSOR dade2
-SELECT *,(impuesto+recargos+sancion+gastos-bonimp-bonrec-bonsan-bongas-salsub) as neto FROM dade2 INTO CURSOR dade2
+SELECT *,(impuesto+recargos+sancion+gastos-bonimp-bonrec-bonsan-bongas) as neto FROM dade2 INTO CURSOR dade2
 ?tIME()
-SELECT exp,MIN(yearbim) as bimrez,SUM(IIF(LEFT(yearbim,4)<wanioc,impuesto,0)) as rezago,SUM(IIF(LEFT(yearbim,4)=wanioc,impuesto,0)) as impuesto,(SUM(bonimp) + SUM(salsub)) as bonimp,;
+SELECT exp,MIN(yearbim) as bimrez,SUM(IIF(LEFT(yearbim,4)<wanioc,impuesto,0)) as rezago,SUM(IIF(LEFT(yearbim,4)=wanioc,impuesto,0)) as impuesto, SUM(bonimp) as bonimp,;
            SUM(recargos) as recargos,SUM(bonrec) as bonrec,;
            SUM(sancion) as sancion,SUM(bonsan) as bonsan,;
            SUM(gastos) as gastos,SUM(bongas) as bongas,;
-           SUM(neto) as neto FROM dade2 GROUP BY exp INTO CURSOR totxexp
+           SUM(neto) as neto  FROM dade2 GROUP BY exp INTO CURSOR totxexp
 ?tIME()
 SELECT '19' as entidad,'28' as mun,LEFT(ALLTRIM(exp),8) as exp,'7777' as concepto,RIGHT(yearbim,1)+LEFT(yearbim,4) as bimanio,;
 		RIGHT("00000000000"+ALLTRIM(str(impuesto,14,2)),14) as impuesto,;
 		RIGHT("00000000000"+ALLTRIM(str(recargos ,14,2)),14) as recargos,;
 		RIGHT("00000000000"+ALLTRIM(str(sancion ,14,2)),14) as sancion,;
 		RIGHT("00000000000"+ALLTRIM(str(gastos ,14,2)),14) as gastos,;
-		RIGHT("00000000000"+ALLTRIM(str((bonimp+bonrec+bonsan+bongas+salsub) ,14,2)),14)  as bonif ;
+		RIGHT("00000000000"+ALLTRIM(str((bonimp+bonrec+bonsan+bongas),14,2)),14)  as bonif ;
 		FROM dade2 INTO CURSOR dade3a
 		
 SELECT * FROM DADE3a ORDER BY EXP,BIMANIO INTO CURSOR DADE3       
@@ -234,7 +234,7 @@ SELECT LEFT(ALLTRIM(a.exp),8) as exp,;
 		LEFT(ALLTRIM("Cobranza       :"+RIGHT("             "+TRANSFORM(wcob, '$,$$$,$$$,$$$.99'),13)),40) as tcobranza,;
 		LEFT(ALLTRIM("Ejecucion      :"+RIGHT("             "+TRANSFORM(wejec, '$,$$$,$$$,$$$.99'),13)),40) as tejecucion,;
 		LEFT(ALLTRIM("Multa          :"+RIGHT("             "+TRANSFORM(wmulta, '$,$$$,$$$,$$$.99'),13)),40) as tmulta,;
-		LEFT(ALLTRIM("Bonificacion(-):"+RIGHT("             "+TRANSFORM(b.bonimp+b.bonrec+b.bongas+b.bonsan,+b.salsub, '$,$$$,$$$,$$$.99'),13)),40) as tbonif,;
+		LEFT(ALLTRIM("Bonificacion(-):"+RIGHT("             "+TRANSFORM(b.bonimp+b.bonrec+b.bongas+b.bonsan, '$,$$$,$$$,$$$.99'),13)),40) as tbonif,;
 		LEFT(ALLTRIM("PAGO DEL IMPUESTO PREDIAL 2019"),40) as ANIOPAGAR, b.neto ;
 		FROM dexped2 a, totxexp b WHERE a.exp=b.exp ORDER BY a.exp INTO CURSOR 'x'
 ?tIME()
