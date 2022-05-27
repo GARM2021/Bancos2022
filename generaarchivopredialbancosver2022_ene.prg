@@ -6,7 +6,7 @@ CLEAR
 ?TIME()
 *207.248.62.188
 *192.10.228.10
-		strconn="Driver=SQL Server;Server=192.10.228.10;Database=gpe2022;UID=sa;PWD=Gu4d4Lup317"
+		strconn="Driver=SQL Server;Server=192.10.228.10;Database=gpe2022;UID=sa;PWD=xxxxxxxxxx"
 *	
 *		MESSAGEBOX(strconn)
 		PUBLIC co,w,wgpe
